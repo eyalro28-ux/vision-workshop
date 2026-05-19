@@ -53,9 +53,33 @@ vercel dev
 | `/api/vision` | GET / DELETE | קריאה/מחיקה של החזון השמור |
 | `/api/clear` | POST | מחיקת הכל (תשובות + חזון) |
 
-## הוראות פריסה לוורסל
+## מבנה הקוד
 
-ראה את מסמך התכנון המקורי ב-`~/.claude/plans/i-want-to-build-valiant-stallman.md` או:
+```
+src/
+  App.tsx              ← נתבן (router) פנימי בין /, /admin, /result
+  views/
+    ParticipantForm.tsx
+    AdminDashboard.tsx
+    VisionResult.tsx
+  components/
+    ResponseList.tsx
+    VisionDocument.tsx
+    Toast.tsx
+api/
+  submit.ts            ← POST /api/submit
+  responses.ts         ← GET /api/responses
+  generate.ts          ← POST /api/generate (קורא ל-Gemini)
+  vision.ts            ← GET / DELETE /api/vision
+  clear.ts             ← POST /api/clear
+  _lib/redis.ts        ← Upstash Redis client
+```
+
+## בדיקות
+
+אין בדיקות אוטומטיות. בדיקה ידנית דרך `/admin` עם `vercel dev`.
+
+## הוראות פריסה לוורסל
 
 1. `git init && git add . && git commit -m "initial"` + push ל-GitHub
 2. https://vercel.com/new → Import הריפו
