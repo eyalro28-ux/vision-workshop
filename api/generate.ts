@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from '@google/genai';
-import { redis, SUBMISSIONS_KEY, VISION_KEY } from './_lib/redis';
+import { redis, SUBMISSIONS_KEY, VISION_KEY } from './_lib/redis.js';
 
 export const config = { maxDuration: 30 };
 

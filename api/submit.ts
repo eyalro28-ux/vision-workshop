@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { redis, SUBMISSIONS_KEY } from './_lib/redis';
+import { redis, SUBMISSIONS_KEY } from './_lib/redis.js';
 
 interface SubmissionInput {
   name: string;
