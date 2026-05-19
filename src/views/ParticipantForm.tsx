@@ -111,7 +111,6 @@ export default function ParticipantForm() {
       }
       localStorage.setItem(STORAGE_KEY, 'true');
       setStatus('success');
-      setToast({ msg: 'התשובה שלך נשמרה. תודה!', kind: 'success' });
     } catch (e) {
       setStatus('idle');
       setToast({ msg: e instanceof Error ? e.message : 'שגיאה בשליחה', kind: 'error' });
