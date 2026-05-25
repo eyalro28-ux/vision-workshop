@@ -182,6 +182,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const visionJson = JSON.parse(text);
+
+    const actionNames = new Set<string>((visionJson.actions ?? []).map((a: { name: string }) => a.name));
+    const missing = items.filter((s) => !actionNames.has(s.name));
+    if (missing.length > 0) {
+      console.warn(`generate: backfilling ${missing.length} missing actions: ${missing.map((m) => m.name).join(', ')}`);
+      visionJson.actions = [...(visionJson.actions ?? []), ...missing.map((s) => ({ name: s.name, action: s.action }))];
+    }
+
     const cached = {
       generatedAt: Date.now(),
       participantCount: items.length,
