@@ -240,7 +240,7 @@ export default function ParticipantForm() {
         </form>
 
         <p className="text-center text-xs text-slate-500 mt-4">
-          התשובות נאספות בצורה מאובטחת ויוצגו בלוח המנחה לאחר השלמת כולן.
+          התשובות נאספות בצורה מאובטחת וישמשו לבניית חזון משותף לפורום.
         </p>
 
         <Toast message={toast?.msg ?? null} kind={toast?.kind} />
