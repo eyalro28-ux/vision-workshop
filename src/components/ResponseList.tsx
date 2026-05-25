@@ -72,7 +72,7 @@ function ResponseCard({ item, index, alwaysExpanded }: { item: Submission; index
               <Row label="ערכים" text={item.values} />
               <Row label="פעולה ל-30 הימים הקרובים" text={item.action} />
               {item.growth && (
-                <Row label="במה רוצה לצמוח (פרטי)" text={item.growth} highlight />
+                <Row label="כלים שמעוניינת לקבל (פרטי)" text={item.growth} highlight />
               )}
             </div>
           </motion.div>
