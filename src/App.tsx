@@ -3,11 +3,13 @@ import { AnimatePresence } from 'motion/react';
 import ParticipantForm from './views/ParticipantForm';
 import AdminDashboard from './views/AdminDashboard';
 import VisionResult from './views/VisionResult';
+import SubmissionsView from './views/SubmissionsView';
 
-export type Route = 'form' | 'admin' | 'result';
+export type Route = 'form' | 'admin' | 'result' | 'submissions';
 
 function getRoute(): Route {
   const p = window.location.pathname;
+  if (p.startsWith('/submissions')) return 'submissions';
   if (p.startsWith('/admin')) return 'admin';
   if (p.startsWith('/result')) return 'result';
   return 'form';
@@ -36,6 +38,7 @@ export default function App() {
         {route === 'form' && <ParticipantForm key="form" />}
         {route === 'admin' && <AdminDashboard key="admin" navigate={navigate} />}
         {route === 'result' && <VisionResult key="result" navigate={navigate} />}
+        {route === 'submissions' && <SubmissionsView key="submissions" navigate={navigate} />}
       </AnimatePresence>
     </div>
   );

@@ -1,31 +1,26 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { ArrowRight, Printer, Sparkles, AlertCircle } from 'lucide-react';
+import { ArrowRight, Printer, AlertCircle } from 'lucide-react';
 import type { Route } from '../App';
-import type { Vision } from '../types';
-import VisionDocument from '../components/VisionDocument';
+import type { Submission, ResponsesPayload } from '../types';
+import ResponseList from '../components/ResponseList';
 
 interface Props {
   navigate: (to: Route) => void;
 }
 
-export default function VisionResult({ navigate }: Props) {
-  const [vision, setVision] = useState<Vision | null>(null);
+export default function SubmissionsView({ navigate }: Props) {
+  const [items, setItems] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const visionRes = await fetch('/api/vision');
-        if (visionRes.status === 404) {
-          setError('עוד לא נוצר חזון. חזרי ללוח המנחה וצרי את החזון.');
-          setLoading(false);
-          return;
-        }
-        if (!visionRes.ok) throw new Error('שגיאה בטעינת החזון');
-        const visionData: Vision = await visionRes.json();
-        setVision(visionData);
+        const res = await fetch('/api/responses');
+        if (!res.ok) throw new Error('שגיאה בטעינה');
+        const data: ResponsesPayload = await res.json();
+        setItems(data.items);
       } catch (e) {
         setError(e instanceof Error ? e.message : 'שגיאה');
       } finally {
@@ -35,36 +30,15 @@ export default function VisionResult({ navigate }: Props) {
   }, []);
 
   if (loading) {
-    return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="min-h-screen flex items-center justify-center"
-      >
-        <div className="flex flex-col items-center gap-4">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1.5, repeat: Infinity, ease: 'linear' }}
-          >
-            <Sparkles size={48} className="text-indigo-600" />
-          </motion.div>
-          <p className="text-slate-600 text-lg">טוען את החזון המשותף...</p>
-        </div>
-      </motion.div>
-    );
+    return <div className="min-h-screen flex items-center justify-center text-slate-500">טוען...</div>;
   }
 
-  if (error || !vision) {
+  if (error) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="min-h-screen flex items-center justify-center px-4"
-      >
+      <div className="min-h-screen flex items-center justify-center px-4">
         <div className="bg-white rounded-3xl shadow-xl p-8 max-w-md text-center">
           <AlertCircle size={48} className="text-amber-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-slate-800 mb-2">החזון עדיין לא מוכן</h2>
-          <p className="text-slate-600 mb-6 leading-relaxed">{error}</p>
+          <p className="text-slate-600 mb-6">{error}</p>
           <button
             onClick={() => navigate('admin')}
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl"
@@ -72,7 +46,7 @@ export default function VisionResult({ navigate }: Props) {
             חזרה ללוח המנחה
           </button>
         </div>
-      </motion.div>
+      </div>
     );
   }
 
@@ -93,10 +67,8 @@ export default function VisionResult({ navigate }: Props) {
             חזרה ללוח
           </button>
           <div className="text-center grow">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-800">החזון המשותף שלנו</h1>
-            <p className="text-xs text-slate-500">
-              נוצר מתוך {vision.participantCount} תשובות · {new Date(vision.generatedAt).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' })}
-            </p>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-800">תשובות פרטניות</h1>
+            <p className="text-xs text-slate-500">לעיני המנחה בלבד · {items.length} משתתפות</p>
           </div>
           <button
             onClick={() => window.print()}
@@ -109,14 +81,16 @@ export default function VisionResult({ navigate }: Props) {
 
         <div className="print-vision-header hidden print:block mb-6 text-center">
           <h1 className="text-3xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-serif)' }}>
-            החזון המשותף שלנו
+            תשובות פרטניות
           </h1>
           <p className="text-sm text-slate-600 mt-2">
-            סדנת חזון משותף · {new Date(vision.generatedAt).toLocaleDateString('he-IL')} · {vision.participantCount} משתתפות
+            סדנת חזון משותף · {new Date().toLocaleDateString('he-IL')} · {items.length} משתתפות
           </p>
         </div>
 
-        <VisionDocument vision={vision} />
+        <section className="bg-white/90 rounded-3xl shadow-lg p-6 sm:p-8">
+          <ResponseList items={items} alwaysExpanded />
+        </section>
 
         <p className="no-print text-center text-xs text-slate-500 mt-10">
           בעת ייצוא ל-PDF — בחרי "שמירה כ-PDF" כיעד ההדפסה בדפדפן.

@@ -1,7 +1,8 @@
 {
   "rewrites": [
     { "source": "/admin", "destination": "/index.html" },
-    { "source": "/result", "destination": "/index.html" }
+    { "source": "/result", "destination": "/index.html" },
+    { "source": "/submissions", "destination": "/index.html" }
   ],
   "functions": {
     "api/generate.ts": { "maxDuration": 60 }

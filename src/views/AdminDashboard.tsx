@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion } from 'motion/react';
-import { Sparkles, RefreshCw, Trash2, Users, Wand2 } from 'lucide-react';
+import { Sparkles, RefreshCw, Trash2, Users, Wand2, ScrollText, FileText } from 'lucide-react';
 import type { Route } from '../App';
-import type { Submission, ResponsesPayload } from '../types';
+import type { Submission, ResponsesPayload, Vision } from '../types';
 import ResponseList from '../components/ResponseList';
+import VisionAuditTrail from '../components/VisionAuditTrail';
 import Toast, { ToastKind } from '../components/Toast';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 export default function AdminDashboard({ navigate }: Props) {
   const [items, setItems] = useState<Submission[]>([]);
+  const [vision, setVision] = useState<Vision | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [toast, setToast] = useState<{ msg: string; kind: ToastKind } | null>(null);
@@ -29,11 +31,27 @@ export default function AdminDashboard({ navigate }: Props) {
     }
   }, []);
 
+  const loadVision = useCallback(async () => {
+    try {
+      const res = await fetch('/api/vision');
+      if (res.status === 404) {
+        setVision(null);
+        return;
+      }
+      if (!res.ok) return;
+      const data: Vision = await res.json();
+      setVision(data);
+    } catch {
+      // silent — vision is optional
+    }
+  }, []);
+
   useEffect(() => {
     loadResponses();
+    loadVision();
     const interval = setInterval(loadResponses, 5000);
     return () => clearInterval(interval);
-  }, [loadResponses]);
+  }, [loadResponses, loadVision]);
 
   useEffect(() => {
     if (!toast) return;
@@ -53,6 +71,8 @@ export default function AdminDashboard({ navigate }: Props) {
         const data = await res.json().catch(() => ({ error: 'שגיאת זיקוק' }));
         throw new Error(data.error || 'שגיאת זיקוק');
       }
+      const data: Vision = await res.json();
+      setVision(data);
       navigate('result');
     } catch (e) {
       setToast({ msg: e instanceof Error ? e.message : 'שגיאת זיקוק', kind: 'error' });
@@ -66,6 +86,7 @@ export default function AdminDashboard({ navigate }: Props) {
       const res = await fetch('/api/clear', { method: 'POST' });
       if (!res.ok) throw new Error('שגיאה במחיקה');
       setItems([]);
+      setVision(null);
       setToast({ msg: 'כל התשובות נמחקו', kind: 'success' });
     } catch (e) {
       setToast({ msg: e instanceof Error ? e.message : 'שגיאה במחיקה', kind: 'error' });
@@ -153,11 +174,40 @@ export default function AdminDashboard({ navigate }: Props) {
           </div>
         </header>
 
+        {vision && (
+          <section className="bg-white/85 backdrop-blur rounded-3xl shadow-xl p-6 mb-6">
+            <header className="flex items-center justify-between flex-wrap gap-3 mb-4">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <ScrollText size={20} className="text-indigo-700" />
+                מקורות החזון (לעיני המנחה בלבד)
+              </h2>
+              <button
+                onClick={() => navigate('result')}
+                className="text-sm text-indigo-700 hover:text-indigo-900 font-bold underline"
+              >
+                צפייה בחזון המלא ←
+              </button>
+            </header>
+            <VisionAuditTrail vision={vision} />
+          </section>
+        )}
+
         <section className="bg-white/85 backdrop-blur rounded-3xl shadow-xl p-6">
-          <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-            <span>תשובות שהתקבלו</span>
-            <span className="text-xs font-normal text-slate-500">מתעדכן אוטומטית כל 5 שניות</span>
-          </h2>
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+              <span>תשובות שהתקבלו</span>
+              <span className="text-xs font-normal text-slate-500">מתעדכן אוטומטית כל 5 שניות</span>
+            </h2>
+            {items.length > 0 && (
+              <button
+                onClick={() => navigate('submissions')}
+                className="text-sm bg-white border-2 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50 text-slate-700 font-bold py-2 px-3 rounded-xl flex items-center gap-2"
+              >
+                <FileText size={16} />
+                ייצוא ל-PDF
+              </button>
+            )}
+          </div>
           {generating && items.length > 0 && (
             <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-center text-indigo-800 text-sm">
               ה-AI מזקק את החזון מתוך {items.length} תשובות... זה ייקח כמה שניות.

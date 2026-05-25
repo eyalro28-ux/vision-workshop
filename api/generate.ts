@@ -37,10 +37,12 @@ ${submissionsText}
 המשימה שלך:
 1. **זיהוי תמטי** — חפשי רעיונות וכוונות חוזרות (לדוגמה: "כוח משימה", "מרחב תמיכה", "שדה העשרה", "רשת חיבורים"). אל תסתפקי בספירת מילים — חפשי את הרוח המשותפת.
 2. **כתיבת ליבת חזון** — פסקה של 4–6 שורות שמתארת את הקבוצה בעוד 6 חודשים, בלשון הצהרתית של "אנחנו" או "הפכנו". השתמשי בניסוחים הקיימים של המשתתפות. תני לזה לשון של מניפסט קצר, חי ומדויק.
-3. **זיקוק 4–6 ערכים מובילים** — לא רשימה שטוחה של כל הערכים שעלו, אלא הזיקוקים המשותפים החשובים ביותר. כל ערך הוא מילה או צמד מילים.
-4. **בחירת 3–5 קולות מהשטח** — ציטוטים ישירים, מילה במילה, מתוך תשובות "חזון" של המשתתפות. ציינו את שם המשתתפת ליד הציטוט. בחרי ציטוטים שמייצגים מגוון קולות, לא רק את הנפוצים ביותר.
-5. **ריכוז כל פעולות ה-30 יום** — רשימה מלאה של כל הפעולות האישיות שכל משתתפת הצהירה עליהן, עם שם המשתתפת. אל תסכמי או תקבצי — הציגי את כולן כפי שנכתבו.
-6. **ייצוג של כל קול** — וודאי שכל משתתפת מיוצגת לפחות באחד מארבעת החלקים (חזון, ערכים, ציטוטים, או פעולות — חוץ מהפעולות שתמיד כוללות את כולן). אם משתתפת לא מצוטטת בקולות, ודאי שערך שלה או הניסוח שלה נכלל בחלק הערכים או בליבת החזון. שום קול לא ייעלם.
+3. **תיעוד מקורות לליבת החזון (visionCoreSources)** — לכל ביטוי או רעיון מרכזי שהשתמשת בו בליבת החזון, פרטי באובייקט נפרד: phrase = הביטוי כפי שהופיע בליבת החזון (יכול להיות צירוף של 2-6 מילים), ו-sources = רשימת שמות המשתתפות שהניסוח שלהן או הרעיון שלהן תרם לביטוי הזה. כל ביטוי מהותי בליבת החזון חייב לקבל מקור. אל תכלילי ביטויים שלא הופיעו בקלט.
+4. **זיקוק 4–6 ערכים מובילים** — לא רשימה שטוחה של כל הערכים שעלו, אלא הזיקוקים המשותפים החשובים ביותר. כל ערך הוא מילה או צמד מילים.
+5. **תיעוד מקורות לערכים (valuesProvenance)** — לכל ערך שבחרת ברשימת values, צרי אובייקט מקביל: value = הערך כפי שהופיע ב-values, ו-contributors = רשימת המשתתפות שתרמו לו. לכל contributor: name = שם המשתתפת, originalValue = המילה או המילים המקוריות שהיא כתבה בשדה "ערכים" שלה ושהובילו אותך לכלול אותה בקבוצה הזו. הסדר של valuesProvenance חייב להיות זהה לסדר של values. שום ערך לא יוצג בלי לפחות contributor אחד.
+6. **בחירת 3–5 קולות מהשטח** — ציטוטים ישירים, מילה במילה, מתוך תשובות "חזון" של המשתתפות. ציינו את שם המשתתפת ליד הציטוט. בחרי ציטוטים שמייצגים מגוון קולות, לא רק את הנפוצים ביותר.
+7. **ריכוז כל פעולות ה-30 יום** — רשימה מלאה של כל הפעולות האישיות שכל משתתפת הצהירה עליהן, עם שם המשתתפת. אל תסכמי או תקבצי — הציגי את כולן כפי שנכתבו.
+8. **ייצוג של כל קול** — וודאי שכל משתתפת מיוצגת לפחות באחד מארבעת החלקים (חזון, ערכים, ציטוטים, או פעולות — חוץ מהפעולות שתמיד כוללות את כולן). אם משתתפת לא מצוטטת בקולות, ודאי שערך שלה או הניסוח שלה נכלל בחלק הערכים או בליבת החזון. שום קול לא ייעלם.
 
 החזירי JSON תקין בלבד, לפי הסכימה שסופקה.`;
 }
@@ -66,7 +68,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const response = await ai.models.generateContent({
+    const callGemini = () => ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: buildUserPrompt(items),
       config: {
@@ -79,11 +81,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               type: Type.STRING,
               description: 'פסקה של 4–6 שורות בלשון "אנחנו" / "הפכנו"',
             },
+            visionCoreSources: {
+              type: Type.ARRAY,
+              description: 'מקור לכל ביטוי או רעיון מהותי בליבת החזון',
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  phrase: {
+                    type: Type.STRING,
+                    description: 'ביטוי שהופיע בליבת החזון',
+                  },
+                  sources: {
+                    type: Type.ARRAY,
+                    description: 'שמות המשתתפות שתרמו לביטוי',
+                    items: { type: Type.STRING },
+                  },
+                },
+                required: ['phrase', 'sources'],
+              },
+            },
             values: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
               minItems: '4',
               maxItems: '6',
+            },
+            valuesProvenance: {
+              type: Type.ARRAY,
+              description: 'מקבילה לרשימת values, באותו סדר. לכל ערך, המשתתפות שתרמו לו והניסוח המקורי שלהן',
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  value: { type: Type.STRING },
+                  contributors: {
+                    type: Type.ARRAY,
+                    items: {
+                      type: Type.OBJECT,
+                      properties: {
+                        name: { type: Type.STRING },
+                        originalValue: { type: Type.STRING },
+                      },
+                      required: ['name', 'originalValue'],
+                    },
+                  },
+                },
+                required: ['value', 'contributors'],
+              },
             },
             voices: {
               type: Type.ARRAY,
@@ -110,10 +153,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               },
             },
           },
-          required: ['visionCore', 'values', 'voices', 'actions'],
+          required: ['visionCore', 'visionCoreSources', 'values', 'valuesProvenance', 'voices', 'actions'],
         },
       },
     });
+
+    const overallStart = Date.now();
+    const RETRY_BUDGET_MS = 35_000;
+    let response;
+    let attempt = 0;
+    while (true) {
+      attempt++;
+      try {
+        response = await callGemini();
+        break;
+      } catch (err) {
+        const msg = String(err);
+        const isTransient = msg.includes('UNAVAILABLE') || msg.includes('"code":503') || msg.includes('"code":429') || msg.includes('overloaded');
+        const elapsed = Date.now() - overallStart;
+        if (attempt >= 3 || !isTransient || elapsed > RETRY_BUDGET_MS) {
+          throw err;
+        }
+        console.warn(`gemini transient error on attempt ${attempt}, retrying in 2s: ${msg.slice(0, 200)}`);
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+    }
 
     const text = response.text;
     if (!text) {

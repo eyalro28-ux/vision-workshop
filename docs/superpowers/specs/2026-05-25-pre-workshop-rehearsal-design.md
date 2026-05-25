@@ -1,8 +1,9 @@
 # Pre-workshop dress rehearsal — design
 
 **Date:** 2026-05-25
+**Workshop date:** 2026-05-26 (next day)
 **Project:** Vision (group-vision workshop app)
-**Goal:** Verify the app end-to-end against production before a live workshop with ~28 participants, and produce a workshop-day runbook.
+**Goal:** Verify the app end-to-end against production before a live workshop with ~28 participants, fix one identified output issue (split PDF into public + admin-only views), and produce a workshop-day runbook.
 
 ## Context
 
@@ -93,6 +94,21 @@ Commit a one-page `docs/workshop-day-runbook.md` to the repo containing:
 - Verify count=0 on `/admin`
 - Commit the runbook
 
+### Part 6 — Split PDF: public group vision vs. admin-only submissions
+
+**Problem found during the last test:** The `/result` page (lines 130–138 of `src/views/VisionResult.tsx`) appends a "נספח: תשובות המשתתפות" (Appendix: participant responses) section below the synthesized vision. When the facilitator exports to PDF, the appendix is included — but the PDF is meant to be shared with the whole group, while the individual submissions are admin-only material.
+
+**Change required:**
+
+1. **Public `/result` page (shown to the group, used for PDF export):** show only the `VisionDocument` — no appendix.
+2. **Admin-only access to individual submissions:** keep the data available to the facilitator via either:
+   - A separate admin-only view (e.g., `/admin/responses` or a tab in `/admin`)
+   - A separate PDF export button on the admin side ("ייצוא תשובות פרטניות")
+
+The simpler option is preferred: add a section/button on `/admin` that opens a separate printable view containing only the individual submissions, with its own print stylesheet. The `/api/responses` endpoint already provides the data; no backend change needed.
+
+**Scope:** UI-only change. Remove appendix block from `VisionResult.tsx`; add a new admin-side printable submissions view. Verify both PDFs print correctly (RTL, page breaks) during the rehearsal.
+
 ## Success criteria
 
 The rehearsal is successful when:
@@ -102,6 +118,7 @@ The rehearsal is successful when:
 3. PDF export renders correctly (RTL, page breaks, no clipping).
 4. The three failure-mode paths each have a known, fast recovery action.
 5. A workshop-day runbook is committed to the repo.
+6. The group PDF exported from `/result` contains only the synthesized vision (no participant responses appendix); the facilitator has a separate, admin-only path to the individual submissions.
 
 ## Risks and open questions
 

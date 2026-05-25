@@ -17,11 +17,28 @@ export interface ActionItem {
   action: string;
 }
 
+export interface VisionCorePhrase {
+  phrase: string;
+  sources: string[];
+}
+
+export interface ValueContributor {
+  name: string;
+  originalValue: string;
+}
+
+export interface ValueProvenance {
+  value: string;
+  contributors: ValueContributor[];
+}
+
 export interface Vision {
   generatedAt: number;
   participantCount: number;
   visionCore: string;
+  visionCoreSources?: VisionCorePhrase[];
   values: string[];
+  valuesProvenance?: ValueProvenance[];
   voices: Voice[];
   actions: ActionItem[];
 }
