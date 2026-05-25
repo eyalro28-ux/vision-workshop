@@ -175,7 +175,7 @@ export default function ParticipantForm() {
           </motion.div>
           <h1 className="text-3xl font-black text-slate-800">חזון משותף</h1>
           <p className="text-slate-600 mt-2 leading-relaxed">
-            הקול שלך הוא חלק מהחזון. ספרי לנו על עצמך, ובוא ניצור יחד תמונה משותפת.
+            כל קול הוא חלק מהחזון. מה שחשוב לך - חשוב לנו.
           </p>
         </header>
 
