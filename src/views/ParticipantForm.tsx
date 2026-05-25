@@ -6,10 +6,11 @@ import Toast, { ToastKind } from '../components/Toast';
 const STORAGE_KEY = 'vision-workshop-submitted';
 
 interface Field {
-  key: 'name' | 'vision' | 'values' | 'action';
+  key: 'name' | 'vision' | 'values' | 'action' | 'growth';
   label: string;
   hint: string;
   example?: string;
+  note?: string;
   multiline: boolean;
   maxLength: number;
   rows?: number;
@@ -49,13 +50,23 @@ const FIELDS: Field[] = [
     maxLength: 180,
     rows: 3,
   },
+  {
+    key: 'growth',
+    label: 'במה את רוצה לצמוח דרך הפורום הזה?',
+    hint: 'באיזה תחום — מקצועי, אישי או רגשי — את מקווה להעמיק או להתחזק?',
+    example: 'דוגמה: "להתחזק בלהציב גבולות בעבודה", או: "להעמיק את היכולת שלי לקבל משוב."',
+    note: 'שדה זה לא מופיע בחזון המשותף — הוא נשמר רק למנחה.',
+    multiline: true,
+    maxLength: 240,
+    rows: 3,
+  },
 ];
 
 type Status = 'idle' | 'submitting' | 'success';
 
 export default function ParticipantForm() {
   const [values, setValues] = useState<Record<string, string>>({
-    name: '', vision: '', values: '', action: '',
+    name: '', vision: '', values: '', action: '', growth: '',
   });
   const [status, setStatus] = useState<Status>('idle');
   const [toast, setToast] = useState<{ msg: string; kind: ToastKind } | null>(null);
@@ -103,6 +114,7 @@ export default function ParticipantForm() {
           vision: values.vision.trim(),
           values: values.values.trim(),
           action: values.action.trim(),
+          growth: values.growth.trim(),
         }),
       });
       if (!res.ok) {
@@ -183,6 +195,9 @@ export default function ParticipantForm() {
                 <p className="text-sm text-slate-600 mb-1.5 leading-snug">{f.hint}</p>
                 {f.example && (
                   <p className="text-xs text-slate-500 mb-2 italic leading-snug">{f.example}</p>
+                )}
+                {f.note && (
+                  <p className="text-xs text-indigo-700 mb-2 leading-snug font-bold">{f.note}</p>
                 )}
                 <Tag
                   {...(f.multiline ? { rows: f.rows } : { type: 'text' })}

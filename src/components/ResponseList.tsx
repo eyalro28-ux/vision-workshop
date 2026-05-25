@@ -71,6 +71,9 @@ function ResponseCard({ item, index, alwaysExpanded }: { item: Submission; index
               <Row label="חזון" text={item.vision} />
               <Row label="ערכים" text={item.values} />
               <Row label="פעולה ל-30 הימים הקרובים" text={item.action} />
+              {item.growth && (
+                <Row label="במה רוצה לצמוח (פרטי)" text={item.growth} highlight />
+              )}
             </div>
           </motion.div>
         )}
@@ -79,10 +82,12 @@ function ResponseCard({ item, index, alwaysExpanded }: { item: Submission; index
   );
 }
 
-function Row({ label, text }: { label: string; text: string }) {
+function Row({ label, text, highlight }: { label: string; text: string; highlight?: boolean }) {
   return (
-    <div>
-      <div className="text-xs font-bold text-indigo-700 mb-0.5">{label}</div>
+    <div className={highlight ? 'bg-amber-50 border border-amber-200 rounded-xl p-3' : ''}>
+      <div className={`text-xs font-bold mb-0.5 ${highlight ? 'text-amber-800' : 'text-indigo-700'}`}>
+        {label}
+      </div>
       <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{text}</div>
     </div>
   );

@@ -5,6 +5,7 @@ export interface Submission {
   vision: string;
   values: string;
   action: string;
+  growth?: string;
 }
 
 export interface Voice {

@@ -6,9 +6,10 @@ interface SubmissionInput {
   vision: string;
   values: string;
   action: string;
+  growth: string;
 }
 
-const LIMITS = { name: 60, vision: 320, values: 60, action: 180 };
+const LIMITS = { name: 60, vision: 320, values: 60, action: 180, growth: 240 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -25,6 +26,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     else if (body.values.length > LIMITS.values) errs.push(`ערכים (מקסימום ${LIMITS.values})`);
     if (!body?.action?.trim()) errs.push('פעולה');
     else if (body.action.length > LIMITS.action) errs.push(`פעולה (מקסימום ${LIMITS.action})`);
+    if (!body?.growth?.trim()) errs.push('צמיחה');
+    else if (body.growth.length > LIMITS.growth) errs.push(`צמיחה (מקסימום ${LIMITS.growth})`);
 
     if (errs.length) {
       return res.status(400).json({ error: `שדות לא תקינים: ${errs.join(', ')}` });
@@ -37,6 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       vision: body.vision.trim(),
       values: body.values.trim(),
       action: body.action.trim(),
+      growth: body.growth.trim(),
     };
 
     await redis.rpush(SUBMISSIONS_KEY, JSON.stringify(record));
