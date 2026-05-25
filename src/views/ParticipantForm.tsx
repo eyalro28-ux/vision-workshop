@@ -8,7 +8,7 @@ const STORAGE_KEY = 'vision-workshop-submitted';
 interface Field {
   key: 'name' | 'vision' | 'values' | 'action' | 'growth';
   label: string;
-  hint: string;
+  hint?: string;
   example?: string;
   note?: string;
   multiline: boolean;
@@ -20,15 +20,14 @@ const FIELDS: Field[] = [
   {
     key: 'name',
     label: 'שם מלא',
-    hint: 'כדי שנוכל לתת לקול שלך מקום ייחודי בחזון',
     multiline: false,
     maxLength: 60,
   },
   {
     key: 'vision',
     label: 'השפעה וחזון',
-    hint: 'דמייני את הקבוצה שלנו בעוד 6 חודשים — מה הפכנו להיות? מה אנחנו עושות יחד?',
-    example: 'דוגמה: "הפכנו לכוח משימה שקל להפעיל כשלאחת מאיתנו יש רעיון, ויצרנו מרחב תמיכה שבו אפשר לבקש עזרה בלי בושה."',
+    hint: 'דמייני את הקבוצה שלנו בעוד 6 חודשים - מה הפכנו להיות? מה אנחנו עושות יחד?',
+    example: 'דוגמה: "הפכנו לכוח משימה שפועל יחד. יצרנו מרחב תמיכה שבו אפשר לתת ולקבל באופן טבעי ועם חיוך."',
     multiline: true,
     maxLength: 320,
     rows: 4,
@@ -36,8 +35,8 @@ const FIELDS: Field[] = [
   {
     key: 'values',
     label: 'ערכים מובילים',
-    hint: '1–3 ערכים שמובילים אותך, מופרדים בפסיק',
-    example: 'דוגמה: סולידריות, סקרנות, אומץ',
+    hint: '1-3 ערכים שמובילים אותך ביום-יום, כאלו שמתאימים לפורום (מופרדים בפסיק)',
+    example: 'דוגמה: פתיחות, סקרנות, אומץ.',
     multiline: false,
     maxLength: 60,
   },
@@ -192,7 +191,9 @@ export default function ParticipantForm() {
                 <label className="block text-base font-bold text-slate-800 mb-1">
                   {f.label}
                 </label>
-                <p className="text-sm text-slate-600 mb-1.5 leading-snug">{f.hint}</p>
+                {f.hint && (
+                  <p className="text-sm text-slate-600 mb-1.5 leading-snug">{f.hint}</p>
+                )}
                 {f.example && (
                   <p className="text-xs text-slate-500 mb-2 italic leading-snug">{f.example}</p>
                 )}
