@@ -148,7 +148,7 @@ export default function ParticipantForm() {
           <h2 className="text-2xl font-bold text-slate-800 mb-2">תודה רבה!</h2>
           <p className="text-slate-600 leading-relaxed">
             {alreadySubmitted
-              ? 'כבר שלחת את התשובה שלך. רק רגע ונראה יחד את החזון המשותף.'
+              ? 'התשובות שלך נשלחו והן בדרך להפוך לחלק מהחזון המשותף'
               : 'התשובה שלך נשמרה ותהיה חלק מהחזון המשותף שניצור יחד.'}
           </p>
           <Toast message={toast?.msg ?? null} kind={toast?.kind} />
