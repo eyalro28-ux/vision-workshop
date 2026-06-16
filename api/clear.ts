@@ -1,10 +1,12 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { redis, SUBMISSIONS_KEY, VISION_KEY } from './_lib/redis.js';
+import { requireAdmin } from './_lib/auth.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+  if (!requireAdmin(req, res)) return;
   try {
     await redis.del(SUBMISSIONS_KEY, VISION_KEY);
     return res.status(200).json({ ok: true });

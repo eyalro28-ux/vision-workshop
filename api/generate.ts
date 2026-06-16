@@ -1,6 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenAI, Type } from '@google/genai';
 import { redis, SUBMISSIONS_KEY, VISION_KEY } from './_lib/redis.js';
+import { requireAdmin } from './_lib/auth.js';
 
 export const config = { maxDuration: 60 };
 
@@ -51,6 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
+  if (!requireAdmin(req, res)) return;
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {

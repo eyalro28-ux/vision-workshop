@@ -4,6 +4,7 @@ import { ArrowRight, Printer, AlertCircle } from 'lucide-react';
 import type { Route } from '../App';
 import type { Submission, ResponsesPayload } from '../types';
 import ResponseList from '../components/ResponseList';
+import { ensureAdminToken, adminFetch } from '../lib/adminAuth';
 
 interface Props {
   navigate: (to: Route) => void;
@@ -17,7 +18,9 @@ export default function SubmissionsView({ navigate }: Props) {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('/api/responses');
+        ensureAdminToken();
+        const res = await adminFetch('/api/responses');
+        if (res.status === 401) throw new Error('קוד מנחה שגוי — רענן את הדף כדי להזין מחדש');
         if (!res.ok) throw new Error('שגיאה בטעינה');
         const data: ResponsesPayload = await res.json();
         setItems(data.items);

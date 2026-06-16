@@ -6,6 +6,7 @@ import type { Submission, ResponsesPayload, Vision } from '../types';
 import ResponseList from '../components/ResponseList';
 import VisionAuditTrail from '../components/VisionAuditTrail';
 import Toast, { ToastKind } from '../components/Toast';
+import { ensureAdminToken, adminFetch } from '../lib/adminAuth';
 
 interface Props {
   navigate: (to: Route) => void;
@@ -20,7 +21,8 @@ export default function AdminDashboard({ navigate }: Props) {
 
   const loadResponses = useCallback(async () => {
     try {
-      const res = await fetch('/api/responses');
+      const res = await adminFetch('/api/responses');
+      if (res.status === 401) throw new Error('קוד מנחה שגוי — רענן את הדף כדי להזין מחדש');
       if (!res.ok) throw new Error('שגיאה בטעינה');
       const data: ResponsesPayload = await res.json();
       setItems(data.items);
@@ -47,6 +49,7 @@ export default function AdminDashboard({ navigate }: Props) {
   }, []);
 
   useEffect(() => {
+    ensureAdminToken();
     loadResponses();
     loadVision();
     const interval = setInterval(loadResponses, 5000);
@@ -66,7 +69,7 @@ export default function AdminDashboard({ navigate }: Props) {
     }
     setGenerating(true);
     try {
-      const res = await fetch('/api/generate', { method: 'POST' });
+      const res = await adminFetch('/api/generate', { method: 'POST' });
       if (!res.ok) {
         const data = await res.json().catch(() => ({ error: 'שגיאת זיקוק' }));
         throw new Error(data.error || 'שגיאת זיקוק');
@@ -83,7 +86,7 @@ export default function AdminDashboard({ navigate }: Props) {
   const clearAll = async () => {
     if (!window.confirm('אתה בטוח שברצונך למחוק את כל התשובות והחזון? לא ניתן לבטל פעולה זו.')) return;
     try {
-      const res = await fetch('/api/clear', { method: 'POST' });
+      const res = await adminFetch('/api/clear', { method: 'POST' });
       if (!res.ok) throw new Error('שגיאה במחיקה');
       setItems([]);
       setVision(null);

@@ -32,6 +32,7 @@ vercel dev
 | משתנה | חובה | מקור |
 |---|---|---|
 | `GEMINI_API_KEY` | כן | https://aistudio.google.com/apikey |
+| `ADMIN_TOKEN` | כן | קוד מנחה שאתה בוחר — מגן על נתיבי הניהול. המנחה מזין אותו פעם אחת ב-`/admin` |
 | `KV_REST_API_URL` | כן | מוזרק אוטומטית דרך Upstash integration ב-Vercel |
 | `KV_REST_API_TOKEN` | כן | מוזרק אוטומטית דרך Upstash integration ב-Vercel |
 
@@ -47,11 +48,13 @@ vercel dev
 
 | נתיב | מטוד | תפקיד |
 |---|---|---|
-| `/api/submit` | POST | שמירת תשובת משתתפת |
-| `/api/responses` | GET | רשימת כל התשובות (פוללינג מהמנחה) |
-| `/api/generate` | POST | קריאה ל-Gemini ויצירת חזון |
-| `/api/vision` | GET / DELETE | קריאה/מחיקה של החזון השמור |
-| `/api/clear` | POST | מחיקת הכל (תשובות + חזון) |
+| `/api/submit` | POST | שמירת תשובת משתתפת (פתוח) |
+| `/api/responses` | GET | רשימת כל התשובות (פוללינג מהמנחה) — **דורש קוד מנחה** |
+| `/api/generate` | POST | קריאה ל-Gemini ויצירת חזון — **דורש קוד מנחה** |
+| `/api/vision` | GET / DELETE | GET פתוח (תצוגת החזון); DELETE **דורש קוד מנחה** |
+| `/api/clear` | POST | מחיקת הכל (תשובות + חזון) — **דורש קוד מנחה** |
+
+נתיבי הניהול מוגנים ב-`ADMIN_TOKEN` (header `x-admin-token`). המנחה מזין את הקוד פעם אחת ב-`/admin` או `/submissions` (נשמר ל-session). אם `ADMIN_TOKEN` לא מוגדר בשרת — כל נתיבי הניהול חסומים (fail closed).
 
 ## מבנה הקוד
 
@@ -83,7 +86,7 @@ api/
 
 1. `git init && git add . && git commit -m "initial"` + push ל-GitHub
 2. https://vercel.com/new → Import הריפו
-3. הוסף `GEMINI_API_KEY` ב-Environment Variables
+3. הוסף `GEMINI_API_KEY` ו-`ADMIN_TOKEN` ב-Environment Variables
 4. Deploy
 5. אחרי Deploy ראשון: Storage → Create Database → Upstash → Redis (חינמי) → Connect
 6. Redeploy מטאב Deployments
