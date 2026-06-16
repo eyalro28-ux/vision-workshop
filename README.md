@@ -43,6 +43,7 @@ vercel dev
 | `/` | טופס משתתפת |
 | `/admin` | לוח בקרה למנחה |
 | `/result` | תצוגת החזון המסונתז + ייצוא PDF |
+| `/submissions` | תצוגת תשובות פרטניות להדפסה — **למנחה בלבד** |
 
 ## API
 
@@ -60,22 +61,30 @@ vercel dev
 
 ```
 src/
-  App.tsx              ← נתבן (router) פנימי בין /, /admin, /result
+  App.tsx                  ← נתבן (router) פנימי בין /, /admin, /result, /submissions
+  main.tsx                 ← נקודת כניסה (mount של React)
+  types.ts                 ← טיפוסים משותפים (Submission, ResponsesPayload וכו')
+  index.css                ← Tailwind + סגנונות גלובליים
   views/
     ParticipantForm.tsx
     AdminDashboard.tsx
     VisionResult.tsx
+    SubmissionsView.tsx    ← תצוגת תשובות פרטניות להדפסה (למנחה בלבד)
   components/
     ResponseList.tsx
     VisionDocument.tsx
+    VisionAuditTrail.tsx   ← פירוט מקורות/שקיפות מאחורי החזון
     Toast.tsx
+  lib/
+    adminAuth.ts           ← ניהול קוד המנחה בצד לקוח (ensureAdminToken, adminFetch)
 api/
-  submit.ts            ← POST /api/submit
-  responses.ts         ← GET /api/responses
-  generate.ts          ← POST /api/generate (קורא ל-Gemini)
-  vision.ts            ← GET / DELETE /api/vision
-  clear.ts             ← POST /api/clear
-  _lib/redis.ts        ← Upstash Redis client
+  submit.ts                ← POST /api/submit
+  responses.ts             ← GET /api/responses
+  generate.ts              ← POST /api/generate (קורא ל-Gemini)
+  vision.ts                ← GET / DELETE /api/vision
+  clear.ts                 ← POST /api/clear
+  _lib/auth.ts             ← requireAdmin — שער הגנת ADMIN_TOKEN בצד שרת
+  _lib/redis.ts            ← Upstash Redis client
 ```
 
 ## בדיקות
